@@ -1,5 +1,5 @@
 import React from "react";
-import PerlinManager from "./perlin-manager";
+import SlitherManager from "./slither-manager";
 
 class SlitherLine extends React.Component {
 
@@ -28,8 +28,6 @@ class SlitherLine extends React.Component {
         }
         requestAnimationFrame(() => this.update());
     }
-
-    draw()
 
     render() {
         return (

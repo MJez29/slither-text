@@ -1,20 +1,13 @@
 import React from "react";
 import Default from "./defaults";
-import Pixel from "./pixel";
 import PerlinNoise from "./perlin-noise";
-import PerlinManager from "./perlin-manager";
+import SlitherManager from "./slither-manager";
 import SlitherLine from "./slither-line";
 
 class SlitherText extends React.Component {
 
     constructor(props) {
         super(props);
-
-        for (let i = 0; i < 1000; i++) {
-            let c = document.createElement("canvas");
-            c.width = 1000;
-            c.height = 1000;
-        }
 
         /**
          * The state of the slither text
@@ -57,6 +50,7 @@ class SlitherText extends React.Component {
          */
         this.isVisibleAt = this.props.isVisibleAt || Default.isVisibleAt;
 
+        this.slitherManager = new SlitherManager(this.state.width, this.state.height);
 
     }
 
@@ -87,32 +81,19 @@ class SlitherText extends React.Component {
         //requestAnimationFrame(() => { this.update() });
     }
 
-    update(firstFrame) {
+    update() {
 
         if (this.visibleContext) {
-            this.visibleContext.fillStyle = this.createBackground(this.visibleContext, this.state.width, this.state.height);
+            this.visibleContext.fillStyle = this.background;
             this.visibleContext.fillRect(0,0,this.state.width,this.state.height);
-
-            let c = this.hiddenCanvases[0].getContext("2d");
-            c.clearRect(0, 0, this.state.width, this.state.height);
-            //c.globalAlpha = 0.5;
-            c.drawImage(this.hiddenCanvases[1], 0, 0);
-            c.globalAlpha = 5;
-            let y = this.perlin.getNoise(this.x) + 400;
-            c.beginPath();
-            c.arc(this.x += 1,y, 0.75,0,2*Math.PI);
-            c.fillStyle = "#FFFFFF";
-            c.fill();
-            c.beginPath();
-            c.arc(this.x - 10,y - 5, 0.75,0,2*Math.PI);
-            c.fillStyle = "#FFFFFF";
-            c.fill();
-            c.beginPath();
-            c.arc(this.x - 5,y + 10, 0.75,0,2*Math.PI);
-            c.fillStyle = "#FFFFFF";
-            c.fill();
-            this.visibleContext.drawImage(this.hiddenCanvases[0], 0, 0);
-            this.hiddenCanvases.reverse();
+            this.visibleContext.fillStyle = "#FFFFFF";
+            this.visibleContext.beginPath();
+            this.visibleContext.arc(100, 100, 25, 0, Math.PI * 2);
+            this.visibleContext.fill();
+            this.visibleContext.beginPath();
+            this.slitherManager.draw(this.visibleContext);
+            this.visibleContext.fill();
+            //console.log("index.js:update()");
         }
 
         requestAnimationFrame(() => { this.update() });
@@ -121,11 +102,13 @@ class SlitherText extends React.Component {
     setVisibleContext(c) {
         if (c) {
             this.visibleContext = c.getContext("2d");
-            this.visibleContext.fillStyle = this.createBackground(this.visibleContext, this.state.width, this.state.height);
+            this.visibleContext.fillStyle = this.background;
             this.visibleContext.fillRect(0, 0, this.state.width, this.state.height);
             this.visibleContext.save();
             this.perlin = new PerlinNoise(100, 0.01);
             this.x = 0;
+            
+            this.background = this.createBackground(this.visibleContext, this.state.width, this.state.height);
         }
     }
 
@@ -138,10 +121,6 @@ class SlitherText extends React.Component {
     }
 
     render() {
-        PerlinManager.setup(100, this.state.height);
-        let slitherLines = [];
-        for (let i = 0; i < this.state.width; i += 4)
-            slitherLines.push(<SlitherLine width={100} height={this.props.height} offset={i} />);
 
         return (
             <div style={ {
@@ -174,9 +153,6 @@ class SlitherText extends React.Component {
                 >
 
                 </canvas>
-                {
-                    slitherLines
-                }
             </div>
         )
     }
