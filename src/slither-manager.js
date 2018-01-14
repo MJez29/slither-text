@@ -6,7 +6,7 @@ import Particle from "./particle";
 // Rename to SlitherManager
 class SlitherManager {
 
-    constructor(w, h) {
+    constructor(w, h, app) {
         this.width = w;
         this.height = h;
         this.amplitudeManager = new AmplitudeManager();
@@ -23,20 +23,20 @@ class SlitherManager {
                 r = perlin.getVertices();
             }
 
-            this.idleSlithers.push(new Slither(i, new PerlinNoise(a, 0.01, r), h));
+            this.idleSlithers.push(new Slither(i, new PerlinNoise(a, 0.01, r), h, app));
         }
-        Particle.loadImage();
+        app.ticker.add(() => this.draw());
     }
 
-    draw(ctx) {
-        if (this.idleSlithers.length > 0 && Math.random() > 0.8) {
+    draw() {
+        if (this.idleSlithers.length > 0 && Math.random() > 0.5) {
             let s = this.idleSlithers.splice(Math.random() * this.idleSlithers.length, 1)[0];
             s.activate();
             this.activeSlithers.push(s);
         }
         for (let i = 0; i < this.activeSlithers.length; ++i) {
-            if (!this.activeSlithers[i].draw(ctx)) {
-                this.idleSlithers.push(this.activeSlithers.splice(i, 1)[0]);
+            if (!this.activeSlithers[i].isActive()) {
+                this.idleSlithers.push(this.activeSlithers.splice(i--, 1)[0]);
             }
         }
     }

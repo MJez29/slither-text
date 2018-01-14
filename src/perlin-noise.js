@@ -46,4 +46,8 @@ export default class PerlinNoise {
     getVertices() {
         return this.r;
     }
+
+    getAmplitude() {
+        return this.amplitude;
+    }
 };

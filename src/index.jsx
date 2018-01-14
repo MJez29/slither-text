@@ -2,7 +2,7 @@ import React from "react";
 import Default from "./defaults";
 import PerlinNoise from "./perlin-noise";
 import SlitherManager from "./slither-manager";
-import SlitherLine from "./slither-line";
+const PIXI = require("pixi.js");
 
 class SlitherText extends React.Component {
 
@@ -18,8 +18,8 @@ class SlitherText extends React.Component {
              * Details about the screen
              * @type { { width: number, height: number, ratio: number } }
              */
-            width: this.props.width || window.innerWidth,
-            height: this.props.height || window.innerHeight,
+            width: parseInt(this.props.width) || window.innerWidth,
+            height: parseInt(this.props.height) || window.innerHeight,
             ratio: this.props.devicePixelRatio || window.devicePixelRatio || 1,
 
             /**
@@ -50,8 +50,8 @@ class SlitherText extends React.Component {
          */
         this.isVisibleAt = this.props.isVisibleAt || Default.isVisibleAt;
 
-        this.slitherManager = new SlitherManager(this.state.width, this.state.height);
-
+        //this.slitherManager = new SlitherManager(this.state.width, this.state.height);
+        console.log("WEBGL: " + PIXI.utils.isWebGLSupported());
     }
 
     /**
@@ -120,6 +120,21 @@ class SlitherText extends React.Component {
         this.hiddenCanvases[p] = c;
     }
 
+    onLoad(c) {
+        if (!this.app) {
+            this.app = new PIXI.Application({
+                width: this.state.width,
+                height: this.state.height,
+                transparent: true,
+                antialias: true,
+                view: c,
+                roundPixels: true
+            });
+            console.log(this.app);
+            this.slitherManager = new SlitherManager(this.state.width, this.state.height, this.app);
+        }
+    }
+
     render() {
 
         return (
@@ -129,27 +144,22 @@ class SlitherText extends React.Component {
                     right: 0,
                     top: 0,
                     bottom: 0,
-                    overflow: "hidden"
+                    overflow: "hidden",
+                    //backgroundColor: "transparent"
                 }}
                 ref={ (d) => this.containerDiv = d }
             >
-                {/* Background (hidden) canvas */}
-                <canvas id="slither-text-hidden-0" width={this.state.width} height={this.state.height}
-                    ref={ (b) => { this.setHiddenContext(b, 0); } } hidden
-                >
-
-                </canvas>
-
-                {/* Background (hidden) canvas */}
-                <canvas id="slither-text-hidden-1" width={this.state.width} height={this.state.height}
-                    ref={ (b) => { this.setHiddenContext(b, 1); } } hidden
-                >
-
-                </canvas>
-
                 {/* Foreground (visible) canvas */}
                 <canvas id="slither-text-canvas" width={this.state.width} height={this.state.height}
-                    ref={ (c) => { this.setVisibleContext(c); requestAnimationFrame(() => { this.update(true) }); } }
+                    ref={ (c) => { this.onLoad(c); } }
+                    style={ { 
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        overflow: "hidden"
+                    } }
                 >
 
                 </canvas>
