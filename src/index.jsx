@@ -18,8 +18,8 @@ class SlitherText extends React.Component {
              * Details about the screen
              * @type { { width: number, height: number, ratio: number } }
              */
-            width: parseInt(this.props.width) || window.innerWidth,
-            height: parseInt(this.props.height) || window.innerHeight,
+            width: (parseInt(this.props.width) || window.innerWidth) * window.devicePixelRatio,
+            height: (parseInt(this.props.height) || window.innerHeight)* window.devicePixelRatio,
             ratio: this.props.devicePixelRatio || window.devicePixelRatio || 1,
 
             /**
@@ -62,10 +62,24 @@ class SlitherText extends React.Component {
      */
     handleResize(value, e) {
         this.setState({
-            width: window.innerWidth,
-            height: window.innerHeight,
+            width: this.containerDiv.offsetWidth * window.devicePixelRatio,
+            height: this.containerDiv.offsetHeight * window.devicePixelRatio,
             ratio: window.devicePixelRatio || 1
         })
+        if (this.app) {
+            this.canvas.style.width = (this.canvas.width = this.containerDiv.offsetWidth * 
+                window.devicePixelRatio) + "px";
+            this.canvas.style.height = (this.canvas.height = this.containerDiv.offsetHeight *
+                window.devicePixelRatio) + "px";
+            
+            this.app.renderer.resize(this.canvas.width, this.canvas.height);
+            this.app.stage.scale.x = 1.0;
+            this.app.stage.scale.y = 1.0;
+        }
+        // if (this.slitherManager) {
+        //     this.slitherManager.updateDimensions(this.state.width, this.state.height);
+        // }
+        console.log("RESIZE");
     }
 
     componentDidMount() {
@@ -81,58 +95,24 @@ class SlitherText extends React.Component {
         //requestAnimationFrame(() => { this.update() });
     }
 
-    update() {
-
-        if (this.visibleContext) {
-            this.visibleContext.fillStyle = this.background;
-            this.visibleContext.fillRect(0,0,this.state.width,this.state.height);
-            this.visibleContext.fillStyle = "#FFFFFF";
-            this.visibleContext.beginPath();
-            this.visibleContext.arc(100, 100, 25, 0, Math.PI * 2);
-            this.visibleContext.fill();
-            this.visibleContext.beginPath();
-            this.slitherManager.draw(this.visibleContext);
-            this.visibleContext.fill();
-            //console.log("index.js:update()");
-        }
-
-        requestAnimationFrame(() => { this.update() });
-    }
-
-    setVisibleContext(c) {
-        if (c) {
-            this.visibleContext = c.getContext("2d");
-            this.visibleContext.fillStyle = this.background;
-            this.visibleContext.fillRect(0, 0, this.state.width, this.state.height);
-            this.visibleContext.save();
-            this.perlin = new PerlinNoise(100, 0.01);
-            this.x = 0;
-            
-            this.background = this.createBackground(this.visibleContext, this.state.width, this.state.height);
-        }
-    }
-
-    setHiddenContext(c, p) {
-        if (!this.hiddenCanvases) {
-            this.hiddenCanvases = [];
-        }
-
-        this.hiddenCanvases[p] = c;
-    }
-
     onLoad(c) {
+        this.canvas = c;
         if (!this.app) {
+            console.log("BOOM:");
+            console.log(this.app);
+            //this.app.destroy(true);
+        //}
             this.app = new PIXI.Application({
                 width: this.state.width,
                 height: this.state.height,
                 transparent: true,
                 antialias: true,
                 view: c,
-                roundPixels: true
+                roundPixels: true,
+                //autoResize: true
             });
-            console.log(this.app);
             this.slitherManager = new SlitherManager(this.state.width, this.state.height, this.app);
-        }
+        }        
     }
 
     render() {
@@ -147,17 +127,18 @@ class SlitherText extends React.Component {
                     overflow: "hidden",
                     //backgroundColor: "transparent"
                 }}
-                ref={ (d) => this.containerDiv = d }
+                ref={ (d) => { this.containerDiv = d; console.log("MOO");} }
             >
                 {/* Foreground (visible) canvas */}
-                <canvas id="slither-text-canvas" width={this.state.width} height={this.state.height}
-                    ref={ (c) => { this.onLoad(c); } }
+                <canvas id="slither-text-canvas"
+                    ref={ (c) => { this.onLoad(c); console.log("FUCK") } }
                     style={ { 
-                        position: "absolute",
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
+                        // position: "absolute",
+                        // left: 0,
+                        // right: 0,
+                        // top: 0,
+                        // bottom: 0,
+                        width: "2000px",
                         overflow: "hidden"
                     } }
                 >
