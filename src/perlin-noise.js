@@ -1,5 +1,20 @@
-export default class PerlinNoise {
+/**
+ * A continuous random function
+ * The algorithm isn't mine but I converted it to ES6
+ * 
+ * @class
+ */
+class PerlinNoise {
 
+    /**
+     * 
+     * @constructor
+     * 
+     * @param { number }        a       - The amplitude of the function
+     * @param { number }        s       - The scale factor applied to the input
+     * @param { number[] }      r       - The vertices used to create noise
+     * 
+     */
     constructor(a, s, r) {
         this.MAX_VERTICES = 256;
         this.MAX_VERTICES_MASK = this.MAX_VERTICES -1;
@@ -17,6 +32,12 @@ export default class PerlinNoise {
         }
     }
 
+    /**
+     * Returns the noise value at x
+     * The output belongs to [0, amplitude)
+     * 
+     * @param { number } x 
+     */
     getNoise(x){
         let scaledX = x * this.scale;
         let xFloor = Math.floor(scaledX);
@@ -34,15 +55,18 @@ export default class PerlinNoise {
 
     /**
     * Linear interpolation function
-    * @param a The lower integer value
-    * @param b The upper integer value
-    * @param t The value between the two
-    * @returns {number}
+    * @param { number } a - The lower integer value
+    * @param { number } b - The upper integer value
+    * @param { number } t - The value between the two
+    * @returns { number }
     */
     lerp(a, b, t) {
         return a * ( 1 - t ) + b * t;
     }
 
+    /**
+     * Returns the vertices used to 
+     */
     getVertices() {
         return this.r;
     }
@@ -50,4 +74,6 @@ export default class PerlinNoise {
     getAmplitude() {
         return this.amplitude;
     }
-};
+}
+
+export default PerlinNoise;

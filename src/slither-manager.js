@@ -30,7 +30,7 @@ class SlitherManager {
     }
 
     draw() {
-        if (this.idleSlithers.length > 0 && Math.random() > 0.6/* && this.activeSlithers.length == 0*/) {
+        if (this.idleSlithers.length > 0 && Math.random() > -0.2/* && this.activeSlithers.length == 0*/) {
             let s = this.idleSlithers.splice(Math.random() * this.idleSlithers.length, 1)[0];
             s.activate();
             this.activeSlithers.push(s);

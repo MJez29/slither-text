@@ -2,6 +2,7 @@ import React from "react";
 import Default from "./defaults";
 import PerlinNoise from "./perlin-noise";
 import SlitherManager from "./slither-manager";
+import CutoffFilter from "./cutoff-filter";
 const PIXI = require("pixi.js");
 
 class SlitherText extends React.Component {
@@ -34,6 +35,8 @@ class SlitherText extends React.Component {
          * @type { function(CanvasRenderingContext2D, number, number) }
          */
         this.createBackground = this.props.createBackground || Default.createBackground;
+
+        this.maskSrc = this.props.maskSrc;
 
         /**
          * @type { Pixel[] }
@@ -108,9 +111,21 @@ class SlitherText extends React.Component {
                 transparent: true,
                 antialias: true,
                 view: c,
-                roundPixels: true,
-                //autoResize: true
+                roundPixels: true
             });
+            this.root = new PIXI.Container();
+            this.app.stage.addChild(this.root);
+            let f = new PIXI.SpriteMaskFilter(PIXI.Sprite.fromImage(this.maskSrc));
+            //f.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+            let v = new PIXI.filters.VoidFilter();
+            v.blendMode = PIXI.BLEND_MODES.NORMAL;
+            this.root.filters = [ f ];
+            //this.app.stage.filters[1].blendMode = PIXI.BLEND_MODES.MULTIPLY;
+            // this.app.stage.mask = new PIXI.Sprite.fromImage(this.maskSrc);
+            // this.app.stage.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+            // this.app.stage.mask.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+            // this.app.stage.addChild(this.app.stage.mask);
+
             this.slitherManager = new SlitherManager(this.state.width, this.state.height, this.app);
         }        
     }
@@ -127,18 +142,17 @@ class SlitherText extends React.Component {
                     overflow: "hidden",
                     //backgroundColor: "transparent"
                 }}
-                ref={ (d) => { this.containerDiv = d; console.log("MOO");} }
+                ref={ (d) => { this.containerDiv = d;} }
             >
                 {/* Foreground (visible) canvas */}
                 <canvas id="slither-text-canvas"
-                    ref={ (c) => { this.onLoad(c); console.log("FUCK") } }
+                    ref={ (c) => { this.onLoad(c); } }
                     style={ { 
-                        // position: "absolute",
-                        // left: 0,
-                        // right: 0,
-                        // top: 0,
-                        // bottom: 0,
-                        width: "2000px",
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
                         overflow: "hidden"
                     } }
                 >
