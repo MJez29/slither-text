@@ -1,5 +1,5 @@
 import PerlinNoise from "./perlin-noise";
-let PIXI = require("pixi.js");
+let PIXI = require("./pixi.min.js");
 
 /**
  * @class
@@ -51,7 +51,7 @@ class Slither {
      * @param { PIXI.Application }  app     - The running PIXI app instance
      * 
      */
-    constructor(x, p, h, app) {
+    constructor(x, p, h, app, r, rt) {
         this.perlin = p;
         this.height = h;
         this.points = [];
@@ -64,8 +64,8 @@ class Slither {
         this.line = new PIXI.mesh.Rope(PIXI.Texture.fromImage(Slither.IMG), this.points);
         //this.line.blendMode = PIXI.BLEND_MODES.ADD;
         this.line.x = this.x;
-        app.stage.children[0].addChild(this.line);
-        app.ticker.add(() => this.update());
+        app.stage.addChild(this.line);
+        app.ticker.add(() => this.update(r, rt));
         this.line.renderable = false;
     }
 
@@ -97,11 +97,10 @@ class Slither {
      * Updates the positions of the nodes
      * 
      */
-    update() {
+    update(renderer, rt) {
 
         // If it is currently animated
-        if (this.line && this.line.renderable) {
-
+        if (this.line && this.line.renderable && renderer && rt) {
             // Updates the lead point
             this.points[0].y -= Slither.DISTANCE_BETWEEN_NODES;
             this.points[0].x = this.perlin.getNoise(this.points[0].y);
@@ -112,6 +111,8 @@ class Slither {
                 this.points[i].x = this.perlin.getNoise(this.points[i].y);
                 this.points[i].y = this.points[i - 1].y + Slither.DISTANCE_BETWEEN_NODES;
             }
+
+            //renderer.render(this.line, rt, false);
 
             // If all points have risen above the screen then the animation is done
             this.line.renderable = this.points[this.points.length - 1].y >= 0;

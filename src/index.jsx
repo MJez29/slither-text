@@ -2,11 +2,19 @@ import React from "react";
 import Default from "./defaults";
 import PerlinNoise from "./perlin-noise";
 import SlitherManager from "./slither-manager";
-import CutoffFilter from "./cutoff-filter";
-const PIXI = require("pixi.js");
+const PIXI = require("./pixi.min");
 
+/**
+ * A React package for creating text made of slithering lines
+ * @class
+ * @extends { React.Component }
+ */
 class SlitherText extends React.Component {
 
+    /**
+     * Creates a SlitherText instance
+     * @param { object } props 
+     */
     constructor(props) {
         super(props);
 
@@ -15,18 +23,13 @@ class SlitherText extends React.Component {
          * @type { object }
          */
         this.state = {
+            
             /**
-             * Details about the screen
-             * @type { { width: number, height: number, ratio: number } }
+             * The width
              */
             width: (parseInt(this.props.width) || window.innerWidth) * window.devicePixelRatio,
             height: (parseInt(this.props.height) || window.innerHeight)* window.devicePixelRatio,
-            ratio: this.props.devicePixelRatio || window.devicePixelRatio || 1,
-
-            /**
-             * The canvas drawing context
-             */
-            context: null
+            ratio: this.props.devicePixelRatio || window.devicePixelRatio || 1
         };
 
         /**
@@ -94,17 +97,15 @@ class SlitherText extends React.Component {
                 height: this.containerDiv.clientHeight
             });
         }
-        console.log("MOUNT");
-        //requestAnimationFrame(() => { this.update() });
     }
 
+    /**
+     * Creates a PIXI.Application instance if one isn't already running
+     * @param { HTMLCanvasElement } c 
+     */
     onLoad(c) {
         this.canvas = c;
         if (!this.app) {
-            console.log("BOOM:");
-            console.log(this.app);
-            //this.app.destroy(true);
-        //}
             this.app = new PIXI.Application({
                 width: this.state.width,
                 height: this.state.height,
@@ -113,18 +114,13 @@ class SlitherText extends React.Component {
                 view: c,
                 roundPixels: true
             });
-            this.root = new PIXI.Container();
-            this.app.stage.addChild(this.root);
+
             let f = new PIXI.SpriteMaskFilter(PIXI.Sprite.fromImage(this.maskSrc));
-            //f.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-            let v = new PIXI.filters.VoidFilter();
-            v.blendMode = PIXI.BLEND_MODES.NORMAL;
-            this.root.filters = [ f ];
-            //this.app.stage.filters[1].blendMode = PIXI.BLEND_MODES.MULTIPLY;
+            //this.app.stage.filters = [ f ];
             // this.app.stage.mask = new PIXI.Sprite.fromImage(this.maskSrc);
-            // this.app.stage.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-            // this.app.stage.mask.blendMode = PIXI.BLEND_MODES.MULTIPLY;
             // this.app.stage.addChild(this.app.stage.mask);
+
+            console.log(this.app);
 
             this.slitherManager = new SlitherManager(this.state.width, this.state.height, this.app);
         }        
@@ -153,11 +149,15 @@ class SlitherText extends React.Component {
                         right: 0,
                         top: 0,
                         bottom: 0,
-                        overflow: "hidden"
+                        overflow: "hidden",
+                        display: "none"
                     } }
                 >
 
                 </canvas>
+
+                
+
             </div>
         )
     }

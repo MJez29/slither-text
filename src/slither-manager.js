@@ -1,15 +1,43 @@
 import PerlinNoise from "./perlin-noise";
 import AmplitudeManager from "./amplitude-manager";
 import Slither from "./slither";
-import Particle from "./particle";
 
-// Rename to SlitherManager
+/**
+ * @class
+ */
 class SlitherManager {
 
+    /**
+     * 
+     * @param { number } w - The width of the screen
+     * @param { number } h - The height of the screen
+     * @param {*} app 
+     */
     constructor(w, h, app) {
+
+        /**
+         * The width of the screen
+         * @type { number }
+         */
         this.width = w;
+
+        /**
+         * The height of the screen
+         * @type { number }
+         */
         this.height = h;
+
+        /**
+         * The generator for the varying amplitudes of the slithers
+         * @type { AmplitudeManager }
+         */
         this.amplitudeManager = new AmplitudeManager();
+
+        this.renderTexture = PIXI.RenderTexture.create(1000, 1000);
+        let sprite = new PIXI.Sprite(this.renderTexture);
+        this.app = app;
+
+        this.app.stage.addChild(sprite);
 
         this.idleSlithers = [];
         this.activeSlithers = [];
@@ -23,13 +51,19 @@ class SlitherManager {
                 r = perlin.getVertices();
             }
 
-            this.idleSlithers.push(new Slither(i, new PerlinNoise(a, 0.01, r), h, app));
+            this.idleSlithers.push(new Slither(i, new PerlinNoise(a, 0.01, r), h, app, this.app.renderer, this.renderTexture));
         }
+
+        console.log(this.app.stage.children[0]);
+
         app.ticker.add(() => this.draw());
-        console.log(app.screen);
     }
 
     draw() {
+
+        //this.app.stage.children[0].texture = new PIXI.Texture.from(this.renderTexture);
+
+
         if (this.idleSlithers.length > 0 && Math.random() > -0.2/* && this.activeSlithers.length == 0*/) {
             let s = this.idleSlithers.splice(Math.random() * this.idleSlithers.length, 1)[0];
             s.activate();
