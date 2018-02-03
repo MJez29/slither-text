@@ -81,6 +81,10 @@ class SlitherText extends React.Component {
             this.app.renderer.resize(this.canvas.width, this.canvas.height);
             this.app.stage.scale.x = 1.0;
             this.app.stage.scale.y = 1.0;
+
+            this.fg.renderer.resize(this.canvas.width, this.canvas.height);
+            this.fg.stage.scale.x = 1.0;
+            this.fg.stage.scale.y = 1.0;
         }
         // if (this.slitherManager) {
         //     this.slitherManager.updateDimensions(this.state.width, this.state.height);
@@ -112,10 +116,11 @@ class SlitherText extends React.Component {
                 transparent: true,
                 antialias: true,
                 view: c,
-                roundPixels: true
+                roundPixels: true,
+                preserveDrawingBuffer: true
             });
 
-            let f = new PIXI.SpriteMaskFilter(PIXI.Sprite.fromImage(this.maskSrc));
+            //let f = new PIXI.SpriteMaskFilter(PIXI.Sprite.fromImage(this.maskSrc));
             //this.app.stage.filters = [ f ];
             // this.app.stage.mask = new PIXI.Sprite.fromImage(this.maskSrc);
             // this.app.stage.addChild(this.app.stage.mask);
@@ -124,6 +129,35 @@ class SlitherText extends React.Component {
 
             this.slitherManager = new SlitherManager(this.state.width, this.state.height, this.app);
         }        
+    }
+
+    onForegroundLoad(c) {
+        if (!this.fg) {
+            this.fg = new PIXI.Application({
+                width: this.state.width,
+                height: this.state.height,
+                transparent: true,
+                antialias: true,
+                view: c,
+                roundPixels: true
+            });
+
+            console.log(this.fg);
+
+            this.fg.stage.addChild(new PIXI.Sprite(PIXI.Texture.fromCanvas(this.app.view)));
+
+            let f = new PIXI.SpriteMaskFilter(PIXI.Sprite.fromImage(this.maskSrc));
+            this.fg.stage.filters = [ f ];
+
+            console.log(this.app.view);
+
+            this.fg.ticker.add(() => {
+                // this.fg.stage.children[0].texture = PIXI.Texture.fromImage(this.app.view.toDataURL());
+                this.fg.stage.children[0].texture.update();
+            })
+
+            //this.slitherManager = new SlitherManager(this.state.width, this.state.height, this.app);
+        }
     }
 
     render() {
@@ -140,7 +174,7 @@ class SlitherText extends React.Component {
                 }}
                 ref={ (d) => { this.containerDiv = d;} }
             >
-                {/* Foreground (visible) canvas */}
+                {/* Hidden canvas */}
                 <canvas id="slither-text-canvas"
                     ref={ (c) => { this.onLoad(c); } }
                     style={ { 
@@ -156,7 +190,20 @@ class SlitherText extends React.Component {
 
                 </canvas>
 
-                
+                {/* Foreground (visible) canvas */}
+                <canvas id="slither-text-foreground"
+                    ref={ (c) => { this.onForegroundLoad(c); } }
+                    style={ { 
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        overflow: "hidden"
+                    } }
+                >
+
+                </canvas>
 
             </div>
         )

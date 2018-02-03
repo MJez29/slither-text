@@ -63,11 +63,12 @@ class SlitherManager {
 
         //this.app.stage.children[0].texture = new PIXI.Texture.from(this.renderTexture);
 
-
-        if (this.idleSlithers.length > 0 && Math.random() > -0.2/* && this.activeSlithers.length == 0*/) {
-            let s = this.idleSlithers.splice(Math.random() * this.idleSlithers.length, 1)[0];
-            s.activate();
-            this.activeSlithers.push(s);
+        for (let i = 0; i < Math.random() * 5; i++) {
+            if (this.idleSlithers.length > 0) {
+                let s = this.idleSlithers.splice(Math.random() * this.idleSlithers.length, 1)[0];
+                s.activate();
+                this.activeSlithers.push(s);
+            }
         }
         for (let i = 0; i < this.activeSlithers.length; ++i) {
             if (!this.activeSlithers[i].isActive()) {
