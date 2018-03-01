@@ -5,18 +5,55 @@ import SlitherManager from "./slither-manager";
 const PIXI = require("./pixi.min");
 
 /**
- * A React package for creating text made of slithering lines
+ * A package for creating text made of slithering lines
  * @class
- * @extends { React.Component }
  */
 class SlitherText extends React.Component {
 
     /**
      * Creates a SlitherText instance
-     * @param { object } props 
+     * @param { { target: HTMLElement} } opts 
      */
-    constructor(props) {
-        super(props);
+    constructor(opts) {
+
+        /**
+         * The container for the PIXI stages
+         * @type { HTMLDivElement }
+         */
+        this.containerDiv = document.createElement("div");
+
+        // Sets the styles of div so that it fits perfectly inside the target div
+        this.containerDiv.style.position = "absolute";
+        this.containerDiv.style.left = 0;
+        this.containerDiv.style.top = 0;
+        this.containerDiv.style.left = 0;
+        this.containerDiv.style.bottom = 0;
+        this.containerDiv.style.overflow = "hidden";
+        this.containerDiv.style.padding = 0;
+        this.containerDiv.style.margin = 0;
+
+        
+        /**
+         * The hidden canvas where the unmasked slither lines are rendered
+         */
+        this.hiddenCanvas = document.createElement("canvas");
+
+        this.hiddenCanvas.style.position = "absolute";
+        this.hiddenCanvas.style.left = 0;
+        this.hiddenCanvas.style.top = 0;
+        this.hiddenCanvas.style.right = 0;
+        this.hiddenCanvas.style.bottom = 0;
+        this.hiddenCanvas.style.padding = 0;
+        this.hiddenCanvas.style.margin = 0;
+        this.hiddenCanvas.style.overflow = 0;
+        this.hiddenCanvas.style.display = "none";
+
+        // Adds the canvases to the container and the container to the target
+        this.containerDiv.appendChild(this.visibleCanvas);
+        this.containerDiv.appendChild(this.hiddenCanvas);
+        opts.target.appendChild(this.containerDiv);
+
+        this.fgApp = 
 
         /**
          * The state of the slither text
@@ -31,6 +68,8 @@ class SlitherText extends React.Component {
             height: (parseInt(this.props.height) || window.innerHeight)* window.devicePixelRatio,
             ratio: this.props.devicePixelRatio || window.devicePixelRatio || 1
         };
+
+        this.width = 
 
         /**
          * A function to create the background of the canvas
@@ -58,6 +97,71 @@ class SlitherText extends React.Component {
 
         //this.slitherManager = new SlitherManager(this.state.width, this.state.height);
         console.log("WEBGL: " + PIXI.utils.isWebGLSupported());
+    }
+
+    /** 
+     * Initializes the visible components of the slither effect
+     */
+    initializeVisible() {
+        this.initializeVisibleCanvas();
+        this.initializeVisibleApp();
+    }
+
+    /** 
+     * Initializes the canvas the canvas where the mask is applied to the text
+     * @function
+     */
+    initializeVisibleCanvas() {
+        /**
+         * The visible canvas where the mask is applied to the effect
+         * @type { HTMLCanvasElement }
+         */
+        this.visibleCanvas = document.createElement("canvas");
+
+        // Applies styles to the visible canvas so that it has the same dimensions as the container
+        this.visibleCanvas.style.position = "absolute";
+        this.visibleCanvas.style.left = 0;
+        this.visibleCanvas.style.top = 0;
+        this.visibleCanvas.style.right = 0;
+        this.visibleCanvas.style.bottom = 0;
+        this.visibleCanvas.style.padding = 0;
+        this.visibleCanvas.style.margin = 0;
+        this.visibleCanvas.style.overflow = 0;
+    }
+
+    /** 
+     * Initializes the app where the mask is applied
+     * @function
+     */
+    initializeVisibleApp() {
+        /**
+         * The app where the mask is applied
+         * @type { PIXI.Application }
+         */
+        this.visibleApp = new PIXI.Application({
+            width: this.visibleCanvas.width,
+            height: this.visibleCanvas.height,
+            transparent: true,
+            antialias: true,
+            view: this.visibleCanvas,
+            //roundPixels: true
+        });
+
+        /** @todo Figure out what this.app.view is */
+        this.visiblaApp.stage.addChild(new PIXI.Sprite(PIXI.Texture.fromCanvas(this.hiddenApp.view)));
+
+        // Creates the mask
+        /** @todo Implement this.maskSrc */
+        let f = new PIXI.SpriteMaskFilter(PIXI.Sprite.fromImage(this.maskSrc));
+        this.visibleApp.stage.filters = [ f ];
+
+        // Defines the app loop
+        this.visibleApp.ticker.add(() => {
+            // this.fg.stage.children[0].texture = PIXI.Texture.fromImage(this.app.view.toDataURL());
+            // Updates the texture to be masked
+            this.visibleApp.stage.children[0].texture.update();
+        })
+
     }
 
     /**
@@ -90,17 +194,6 @@ class SlitherText extends React.Component {
         //     this.slitherManager.updateDimensions(this.state.width, this.state.height);
         // }
         console.log("RESIZE");
-    }
-
-    componentDidMount() {
-        window.addEventListener("resize", this.handleResize.bind(this));
-
-        if (this.state.width != this.containerDiv.clientWidth || this.state.height != this.containerDiv.clientHeight) {
-            this.setState({
-                width: this.containerDiv.clientWidth,
-                height: this.containerDiv.clientHeight
-            });
-        }
     }
 
     /**
