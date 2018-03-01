@@ -116,7 +116,7 @@ class SlitherText extends React.Component {
                 transparent: true,
                 antialias: true,
                 view: c,
-                roundPixels: true,
+                //roundPixels: true,
                 preserveDrawingBuffer: true
             });
 
@@ -139,7 +139,7 @@ class SlitherText extends React.Component {
                 transparent: true,
                 antialias: true,
                 view: c,
-                roundPixels: true
+                //roundPixels: true
             });
 
             console.log(this.fg);
